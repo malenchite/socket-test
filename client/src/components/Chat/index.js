@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Messages from "../Messages";
 
 function Chat(props) {
-  const CHAT_MSG_STRING = "chat message";
+  const CHAT_MSG_EVENT = "chat message";
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
 
@@ -21,7 +21,7 @@ function Chat(props) {
         color: props.color,
         userId: props.userId
       };
-      props.socket.emit(CHAT_MSG_STRING, msgPacket);
+      props.socket.emit(CHAT_MSG_EVENT, msgPacket);
       setMessage("");
     }
   }
@@ -29,12 +29,12 @@ function Chat(props) {
   /* Initializes socket listener */
   useEffect(() => {
     if (props.socket) {
-      props.socket.on(CHAT_MSG_STRING, msgPacket => {
+      props.socket.on(CHAT_MSG_EVENT, msgPacket => {
         setChat(prevChat => [...prevChat, msgPacket]);
         window.scrollTo(0, document.body.scrollHeight);
       });
 
-      return () => props.socket.off(CHAT_MSG_STRING);
+      return () => props.socket.off(CHAT_MSG_EVENT);
     }
   }, [props.socket]);
 

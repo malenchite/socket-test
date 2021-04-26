@@ -7,8 +7,8 @@ import "./App.css"
 const ENDPOINT = "http://localhost:4001";
 
 function App() {
-  const ID_INFO_STRING = "id info";
-  const TIME_STRING = "clock";
+  const ID_INFO_EVENT = "id info";
+  const TIME_EVENT = "clock";
 
   const [time, setTime] = useState("");
   const [socket, setSocket] = useState(null);
@@ -19,13 +19,13 @@ function App() {
     const newSocket = process.env.REACT_APP_DEPLOYED ? io() : io(ENDPOINT);
 
     /* Get unique connection ID and color */
-    newSocket.on(ID_INFO_STRING, info => {
+    newSocket.on(ID_INFO_EVENT, info => {
       setId(info.userId);
       setColor(info.color);
     });
 
     /* Respond to clock data */
-    newSocket.on(TIME_STRING, time => {
+    newSocket.on(TIME_EVENT, time => {
       setTime(time);
     });
 

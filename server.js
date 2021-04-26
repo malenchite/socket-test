@@ -22,15 +22,15 @@ const io =
     }
   });
 
-const CHAT_MSG_STRING = "chat message";
-const ID_INFO_STRING = "id info";
-const TIME_STRING = "clock";
+const CHAT_MSG_EVENT = "chat message";
+const ID_INFO_EVENT = "id info";
+const TIME_EVENT = "clock";
 
 /* Emits new time */
-const emitNewTime = socket => {
+const emitNewTime = () => {
   const response = new Date();
 
-  socket.emit(TIME_STRING, response);
+  io.emit(TIME_EVENT, response);
 };
 
 /* Emits chat message */
@@ -42,10 +42,11 @@ const emitChatMessage = (msgPacket) => {
     msgId: uuid.v4()
   }
 
-  io.emit('chat message', message);
+  io.emit(CHAT_MSG_EVENT, message);
 }
 
 let interval;
+let clientCount = 0;
 
 io.on("connection", (socket) => {
   const newUserColor = randomColor({
@@ -55,15 +56,18 @@ io.on("connection", (socket) => {
   });
 
   console.log("New client connected");
+  clientCount++;
 
   /* Sets up regular interval to update server time */
-  if (interval) {
-    clearInterval(interval);
+  if (clientCount === 1) {
+    if (interval) {
+      clearInterval(interval);
+    }
+    interval = setInterval(() => emitNewTime(), 1000);
   }
-  interval = setInterval(() => emitNewTime(socket), 1000);
 
   /* Sends unique info to new connection */
-  socket.emit(ID_INFO_STRING, {
+  socket.emit(ID_INFO_EVENT, {
     userId: socket.id,
     color: newUserColor
   });
@@ -76,11 +80,16 @@ io.on("connection", (socket) => {
   });
 
   /* Sends chat messages to all users */
-  socket.on(CHAT_MSG_STRING, emitChatMessage);
+  socket.on(CHAT_MSG_EVENT, emitChatMessage);
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
-    clearInterval(interval);
+    clientCount--;
+
+    if (clientCount < 1) {
+      clearInterval(interval);
+      clientCount = 0;
+    }
   });
 });
 
