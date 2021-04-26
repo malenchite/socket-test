@@ -39,7 +39,6 @@ io.on("connection", (socket) => {
       msg,
       id: uuid.v4()
     }
-    console.log(message);
     io.emit('chat message', message);
   });
 
