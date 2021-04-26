@@ -10,7 +10,7 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = process.env.ORIGIN ? io() : io(ENDPOINT);
+    const newSocket = process.env.REACT_APP_DEPLOYED ? io() : io(ENDPOINT);
     newSocket.on("clock", data => {
       setResponse(data);
     });

@@ -11,12 +11,14 @@ app.use(index);
 
 const server = http.createServer(app);
 
-const io = socketIo(server, {
-  cors: {
-    origin: process.env.ORIGIN || "http://localhost:3000",
-    methods: ["GET", "POST"]
-  }
-}); // < Interesting!
+const io = process.env.REACT_APP_DEPLOYED ?
+  socketIo(server) :
+  socketIo(server, {
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"]
+    }
+  });
 
 const getApiAndEmit = socket => {
   const response = new Date();
