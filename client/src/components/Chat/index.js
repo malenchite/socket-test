@@ -30,7 +30,8 @@ function Chat(props) {
   useEffect(() => {
     if (props.socket) {
       props.socket.on(CHAT_MSG_STRING, msgPacket => {
-        setChat(prevChat => [...prevChat, msgPacket])
+        setChat(prevChat => [...prevChat, msgPacket]);
+        window.scrollTo(0, document.body.scrollHeight);
       });
 
       return () => props.socket.off(CHAT_MSG_STRING);
