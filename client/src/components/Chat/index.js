@@ -14,7 +14,7 @@ function Chat(props) {
   /* Sends chat message on socket */
   const sendChatMessage = (e) => {
     e.preventDefault();
-    console.log(message);
+
     if (message) {
       const msgPacket = {
         msg: message,

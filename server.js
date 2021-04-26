@@ -6,15 +6,16 @@ const randomColor = require("randomcolor");
 
 const PORT = process.env.PORT || 4001;
 const index = require("./routes/index");
+const { emit } = require("process");
 
 const app = express();
 app.use(index);
 
 const server = http.createServer(app);
 
-const io = process.env.REACT_APP_DEPLOYED ?
-  socketIo(server) :
-  socketIo(server, {
+/* Apply CORS for localhost if serving locally */
+const io =
+  socketIo(server, process.env.REACT_APP_DEPLOYED ? {} : {
     cors: {
       origin: "http://localhost:3000",
       methods: ["GET", "POST"]
@@ -26,11 +27,23 @@ const ID_INFO_STRING = "id info";
 const TIME_STRING = "clock";
 
 /* Emits new time */
-const getTimeAndEmit = socket => {
+const emitNewTime = socket => {
   const response = new Date();
-  // Emitting a new message. Will be consumed by the client
+
   socket.emit(TIME_STRING, response);
 };
+
+/* Emits chat message */
+const emitChatMessage = (msgPacket) => {
+  const message = {
+    color: msgPacket.color,
+    userId: msgPacket.userId,
+    msg: msgPacket.msg,
+    msgId: uuid.v4()
+  }
+
+  io.emit('chat message', message);
+}
 
 let interval;
 
@@ -43,10 +56,11 @@ io.on("connection", (socket) => {
 
   console.log("New client connected");
 
+  /* Sets up regular interval to update server time */
   if (interval) {
     clearInterval(interval);
   }
-  interval = setInterval(() => getTimeAndEmit(socket), 1000);
+  interval = setInterval(() => emitNewTime(socket), 1000);
 
   /* Sends unique info to new connection */
   socket.emit(ID_INFO_STRING, {
@@ -55,21 +69,14 @@ io.on("connection", (socket) => {
   });
 
   /* Sends an announcement that a new user has joined */
-  io.emit(CHAT_MSG_STRING, {
-    userId: socket.id,
+  emitChatMessage({
+    userId: "server",
     color: newUserColor,
-    msgId: uuid.v4(),
     msg: "A new user has joined in with this color. Please welcome them!"
   });
 
   /* Sends chat messages to all users */
-  socket.on(CHAT_MSG_STRING, msgPacket => {
-    const message = {
-      ...msgPacket,
-      msgId: uuid.v4()
-    }
-    io.emit('chat message', message);
-  });
+  socket.on(CHAT_MSG_STRING, emitChatMessage);
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
