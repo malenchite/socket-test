@@ -8,9 +8,18 @@ const ENDPOINT = "http://localhost:4001";
 function App() {
   const [response, setResponse] = useState("");
   const [socket, setSocket] = useState(null);
+  const [id, setId] = useState(null);
+  const [color, setColor] = useState("#000000");
 
   useEffect(() => {
     const newSocket = process.env.REACT_APP_DEPLOYED ? io() : io(ENDPOINT);
+
+    /* Get unique connection ID and color */
+    newSocket.on("id info", info => {
+      setId(info.id);
+      setColor(info.color);
+    });
+
     newSocket.on("clock", data => {
       setResponse(data);
     });
@@ -24,9 +33,9 @@ function App() {
   return (
     <>
       <p>
-        It's <time dateTime={response}>{response}</time>
+        The server time is <time dateTime={response}>{response}</time>
       </p>
-      <Chat socket={socket} />
+      <Chat socket={socket} color={color} id={id} />
     </>
   );
 }

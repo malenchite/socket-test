@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import Messages from "../Messages";
 
 function Chat(props) {
-
+  const CHAT_MSG_STRING = "chat message";
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
 
@@ -11,25 +12,37 @@ function Chat(props) {
 
   const sendChatMessage = (e) => {
     e.preventDefault();
+    console.log(message);
     if (message) {
-      props.socket.emit("chat message", message);
+      const msgPacket = {
+        msg: message,
+        color: props.color,
+        id: props.id
+      };
+      props.socket.emit(CHAT_MSG_STRING, msgPacket);
       setMessage("");
     }
   }
 
   useEffect(() => {
     if (props.socket) {
-      props.socket.on("chat message", msg => setChat([...chat, msg]));
+      props.socket.on(CHAT_MSG_STRING, msgPacket => {
+        setChat(prevChat => [...prevChat, msgPacket])
+      });
+
+      return () => props.socket.off(CHAT_MSG_STRING);
     }
-  }, [chat, props.socket]);
+  }, [props.socket]);
 
 
   return (
     <>
-      <ul id="messages">
-        {chat.map(msg => <li key={msg.id}>{msg.msg}</li>)}
-      </ul>
-      <form id="form" onClick={sendChatMessage}>
+      <div id="welcome">
+        Welcome to the socket.io chat test! Your text will appear as <span style={{ backgroundColor: props.color, padding: "0.25rem 0.25rem" }}>this color</span>. Just type something in below and click 'Send'!
+      </div>
+      <hr />
+      <Messages chat={chat} />
+      <form id="form" onSubmit={sendChatMessage}>
         <input id="input" value={message} autoComplete="off" onChange={handleMessageChange} /><button>Send</button>
       </form>
     </>

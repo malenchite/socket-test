@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
 const uuid = require("uuid");
+const randomColor = require("randomcolor");
 
 const PORT = process.env.PORT || 4001;
 const index = require("./routes/index");
@@ -36,9 +37,18 @@ io.on("connection", (socket) => {
   }
   interval = setInterval(() => getApiAndEmit(socket), 1000);
 
+  socket.emit("id info", {
+    id: socket.id,
+    color: randomColor({
+      format: "rgba",
+      seed: socket.id,
+      alpha: 0.25
+    })
+  })
+
   socket.on('chat message', (msg) => {
     const message = {
-      msg,
+      ...msg,
       id: uuid.v4()
     }
     io.emit('chat message', message);
