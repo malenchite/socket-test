@@ -35,9 +35,14 @@ const getTimeAndEmit = socket => {
 let interval;
 
 io.on("connection", (socket) => {
+  const newUserColor = randomColor({
+    format: "rgba",
+    seed: socket.id,
+    alpha: 0.5
+  });
+
   console.log("New client connected");
 
-  /* Adds interval to update time every second */
   if (interval) {
     clearInterval(interval);
   }
@@ -46,12 +51,16 @@ io.on("connection", (socket) => {
   /* Sends unique info to new connection */
   socket.emit(ID_INFO_STRING, {
     userId: socket.id,
-    color: randomColor({
-      format: "rgba",
-      seed: socket.id,
-      alpha: 0.35
-    })
-  })
+    color: newUserColor
+  });
+
+  /* Sends an announcement that a new user has joined */
+  io.emit(CHAT_MSG_STRING, {
+    userId: socket.id,
+    color: newUserColor,
+    msgId: uuid.v4(),
+    msg: "A new user has joined in with this color. Please welcome them!"
+  });
 
   /* Sends chat messages to all users */
   socket.on(CHAT_MSG_STRING, msgPacket => {
