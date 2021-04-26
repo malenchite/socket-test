@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import Chat from "./components/Chat";
+import dayjs from "dayjs";
 import "./App.css"
 
 const ENDPOINT = "http://localhost:4001";
@@ -24,8 +25,8 @@ function App() {
     });
 
     /* Respond to clock data */
-    newSocket.on(TIME_STRING, data => {
-      setTime(data);
+    newSocket.on(TIME_STRING, time => {
+      setTime(time);
     });
 
     /* Store socket in state */
@@ -38,7 +39,7 @@ function App() {
   return (
     <>
       <p>
-        The server time is <time dateTime={time}>{time}</time>
+        The server time is <time dateTime={time}>{dayjs(time).format("MM/DD/YYYY HH:mm:ss")}</time>
       </p>
       <Chat socket={socket} color={color} userId={id} />
     </>
