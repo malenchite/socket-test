@@ -6,7 +6,10 @@ import "./App.css"
 const ENDPOINT = "http://localhost:4001";
 
 function App() {
-  const [response, setResponse] = useState("");
+  const ID_INFO_STRING = "id info";
+  const TIME_STRING = "clock";
+
+  const [time, setTime] = useState("");
   const [socket, setSocket] = useState(null);
   const [id, setId] = useState(null);
   const [color, setColor] = useState("#000000");
@@ -15,27 +18,29 @@ function App() {
     const newSocket = process.env.REACT_APP_DEPLOYED ? io() : io(ENDPOINT);
 
     /* Get unique connection ID and color */
-    newSocket.on("id info", info => {
-      setId(info.id);
+    newSocket.on(ID_INFO_STRING, info => {
+      setId(info.userId);
       setColor(info.color);
     });
 
-    newSocket.on("clock", data => {
-      setResponse(data);
+    /* Respond to clock data */
+    newSocket.on(TIME_STRING, data => {
+      setTime(data);
     });
 
+    /* Store socket in state */
     setSocket(newSocket);
 
-    // CLEAN UP THE EFFECT
+    /* Return socket cleanup function */
     return () => newSocket.disconnect();
   }, []);
 
   return (
     <>
       <p>
-        The server time is <time dateTime={response}>{response}</time>
+        The server time is <time dateTime={time}>{time}</time>
       </p>
-      <Chat socket={socket} color={color} id={id} />
+      <Chat socket={socket} color={color} userId={id} />
     </>
   );
 }

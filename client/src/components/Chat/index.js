@@ -6,10 +6,12 @@ function Chat(props) {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
 
+  /* Updates state when message changes */
   const handleMessageChange = e => {
     setMessage(e.target.value);
   }
 
+  /* Sends chat message on socket */
   const sendChatMessage = (e) => {
     e.preventDefault();
     console.log(message);
@@ -17,13 +19,14 @@ function Chat(props) {
       const msgPacket = {
         msg: message,
         color: props.color,
-        id: props.id
+        userId: props.userId
       };
       props.socket.emit(CHAT_MSG_STRING, msgPacket);
       setMessage("");
     }
   }
 
+  /* Initializes socket listener */
   useEffect(() => {
     if (props.socket) {
       props.socket.on(CHAT_MSG_STRING, msgPacket => {

@@ -21,10 +21,15 @@ const io = process.env.REACT_APP_DEPLOYED ?
     }
   });
 
-const getApiAndEmit = socket => {
+const CHAT_MSG_STRING = "chat message";
+const ID_INFO_STRING = "id info";
+const TIME_STRING = "clock";
+
+/* Emits new time */
+const getTimeAndEmit = socket => {
   const response = new Date();
   // Emitting a new message. Will be consumed by the client
-  socket.emit("clock", response);
+  socket.emit(TIME_STRING, response);
 };
 
 let interval;
@@ -32,24 +37,27 @@ let interval;
 io.on("connection", (socket) => {
   console.log("New client connected");
 
+  /* Adds interval to update time every second */
   if (interval) {
     clearInterval(interval);
   }
-  interval = setInterval(() => getApiAndEmit(socket), 1000);
+  interval = setInterval(() => getTimeAndEmit(socket), 1000);
 
-  socket.emit("id info", {
-    id: socket.id,
+  /* Sends unique info to new connection */
+  socket.emit(ID_INFO_STRING, {
+    userId: socket.id,
     color: randomColor({
       format: "rgba",
       seed: socket.id,
-      alpha: 0.25
+      alpha: 0.35
     })
   })
 
-  socket.on('chat message', (msg) => {
+  /* Sends chat messages to all users */
+  socket.on(CHAT_MSG_STRING, msgPacket => {
     const message = {
-      ...msg,
-      id: uuid.v4()
+      ...msgPacket,
+      msgId: uuid.v4()
     }
     io.emit('chat message', message);
   });
