@@ -3,7 +3,7 @@ import socketIOClient from "socket.io-client";
 import Chat from "./components/Chat";
 import "./App.css"
 
-const ENDPOINT = process.env.ENDPOINT || "http://localhost:4001";
+const ENDPOINT = `${process.env.ORIGIN}:${process.env.PORT}` || "http://localhost:4001";
 
 function App() {
   const [response, setResponse] = useState("");
