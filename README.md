@@ -35,4 +35,5 @@ Questions about the project? You can contact me at malenchite@gmail.com or check
 
 ## Credits
 React portion was initialized using [Create React App](https://create-react-app.dev/)  
-Chat behavior based on the Get Started tutorial from [Socket.io](https://socket.io/)
+Chat behavior based on the Get Started tutorial from [Socket.io](https://socket.io/)  
+Clock behavior based on [this tutorial](https://www.valentinog.com/blog/socket-react/) by Valentino Gagliardi
