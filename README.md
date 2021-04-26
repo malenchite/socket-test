@@ -24,6 +24,11 @@ The application can be started locally with
 npm start
 ```
 
+If deploying, set this environment variable to ensure that socket.io connects correctly
+```
+REACT_APP_DEPLOYED = true
+```
+
 ## Deployment
 This application has been deployed on Heroku at https://malenchite-socket-test.herokuapp.com
 
